@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Chapter Editor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <form action="/publish" method="POST">
+        
+        <input type="hidden" name="title" value="{{ story_data.title }}">
+        <input type="hidden" name="genre" value="{{ story_data.genre }}">
+        <input type="hidden" name="tags" value="{{ story_data.tags }}">
+        <input type="hidden" name="synopsis" value="{{ story_data.synopsis }}">
+
+        <div class="topbar">
+            <a href="/create-story" class="back-link">← Back to Metadata</a>
+            <div class="chapter-title">Chapter Editor: {{ story_data.title }}</div>
+            <button type="submit" class="publish-btn">📄 Publish</button>
+        </div>
+        
+        <div class="chapter-container">
+            <div class="chapter-row">
+                <div class="chapter-field">
+                    <label>Chapter Number</label>
+                    <input type="number" name="chapter_number" value="1" class="chapter-number" required/>
+                </div>
+                <div class="chapter-field">
+                    <label>Chapter Title</label>
+                    <input type="text" name="chapter_title" placeholder="e.g., The Beginning" class="chapter-title-input" required/>
+                </div>
+            </div>
+            
+            <div class="chapter-content-box">
+                <label>Chapter Content</label>
+                <textarea name="content" class="chapter-textarea" id="chapterText" placeholder="Start writing your chapter here... You can type or paste your content." required></textarea>
+                <div class="word-counter" id="wordCounter">Words: 0</div>
+            </div>
+        </div>
+    </form>
+    
+    <script>
+        const textarea = document.getElementById("chapterText");
+        const counter = document.getElementById("wordCounter");
+        textarea.addEventListener("input", () => {
+            const text = textarea.value.trim();
+            if(text === ""){
+                counter.textContent = "Words: 0";
+                return;
+            }
+            const words = text.split(/\s+/).length;
+            counter.textContent = "Words: " + words;
+        });
+    </script>
+</body>
+</html>

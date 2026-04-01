@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Register</title>
+<link rel="stylesheet"
+href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<div class="center">
+
+<form method="POST" class="card">
+
+<h2>Register</h2>
+<button id="themeToggle">🌙</button>
+<input name="name"
+type="text"
+placeholder="Full Name"
+required>
+
+<select name="gender" required>
+<option value="">Select Gender</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+<input name="birthdate"
+type="date"
+required>
+
+<input name="email"
+type="email"
+placeholder="Email"
+required>
+
+<input name="password"
+type="password"
+placeholder="Password"
+required>
+
+<button class="btn">
+Register
+</button>
+
+{% for msg in get_flashed_messages() %}
+<p class="error">{{ msg }}</p>
+{% endfor %}
+
+<p class="link">
+<a href="/">Back to Login</a>
+</p>
+
+</form>
+
+</div>
+
+<script>
+if(localStorage.getItem("theme")==="light"){
+document.body.classList.add("light");
+}
+</script>
+
+<!-- Mode Toggle -->
+<script>
+const toggleBtn =
+document.getElementById("themeToggle");
+
+if(localStorage.getItem("theme")==="light"){
+document.body.classList.add("light");
+toggleBtn.textContent="☀️";
+}
+
+toggleBtn.onclick=()=>{
+
+document.body.classList.toggle("light");
+
+if(document.body.classList.contains("light")){
+localStorage.setItem("theme","light");
+toggleBtn.textContent="☀️";
+}else{
+localStorage.setItem("theme","dark");
+toggleBtn.textContent="🌙";
+}
+}
+</script>
+
+</body>
+</html>

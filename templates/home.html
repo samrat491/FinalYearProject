@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="navbar purple-nav">
+        <div class="nav-left">
+            <span>🏠 Home</span>
+            <span>👤 About us</span>
+            <span>📚 Categories</span>
+            <span>🏷 Tags</span>
+        </div>
+        <div class="nav-right">
+            <input class="search-box" placeholder="Search">
+            <button id="themeToggle">🌙</button>
+            {% if user %}
+                <a href="/dashboard" class="nav-btn"> 📘 Dashboard </a>
+            {% else %}
+                <a href="/" class="nav-btn"> 🔐 Log In </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="home-container">
+        <div class="main-content">
+            <h3>Popular Today</h3>
+            <div class="popular-row">
+                <img src="{{ url_for('static', filename='images/otherworldyevilmonarch.png') }}" alt="Otherworldy Evil Monarch" width="200">
+                <img src="{{ url_for('static', filename='images/reverendinsanity.png') }}" alt="Reverand Insanity" width="200">
+                <img src="{{ url_for('static', filename='images/legendoflingtian.png') }}" alt="Legend of Ling Tian" width="200">
+                <img src="{{ url_for('static', filename='images/overlord.png') }}" alt="Overlord" width="200">
+            </div>
+            
+            <div class="latest-header">
+                <h3>Latest Updates</h3>
+                <button class="view-more"> View More </button>
+            </div>
+            
+            <div class="latest-grid">
+                {% for story in latest_stories %}
+                    <a href="/read/{{ story.id }}" style="text-decoration: none; color: inherit;">
+                        <div class="book big" style="padding: 15px; border: 1px solid #ccc; border-radius: 8px; background: #fff;">
+                            <h4 style="margin: 0;">{{ story.title }}</h4>
+                            <p style="font-size: 12px; color: #888; margin-top: 5px;">{{ story.genre }}</p>
+                        </div>
+                    </a>
+                {% else %}
+                    <p style="grid-column: span 4; text-align: center;">No stories published yet. Be the first to publish!</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="sidebar">
+            <h3>Popular</h3>
+            <div class="tabs">
+                <span class="active">Weekly</span>
+                <span>Monthly</span>
+                <span>All</span>
+            </div>
+            <div class="popular-item">
+                <img src="{{ url_for('static', filename='images/shadowslave.png') }}" alt="Shadow Slave" width="100">
+                <div>
+                    <h4>Shadow Slave</h4>
+                    <p>Action • Fantasy</p> ⭐⭐⭐⭐⭐
+                </div>
+            </div>
+            <div class="popular-item">
+                <img src="{{ url_for('static', filename='images/ghostexorciser.png') }}" alt="Ghost Exorciser" width="100">
+                <div>
+                    <h4>Ghost Exorciser</h4>
+                    <p>Comedy • Romance</p> ⭐⭐⭐⭐
+                </div>
+            </div>
+            <div class="popular-item">
+                <img src="{{ url_for('static', filename='images/sinfullifeofemperor.png') }}" alt="Sinful Emperor" width="100">
+                <div>
+                    <h4>Sinful Emperor</h4>
+                    <p>Adventure • Fantasy</p> ⭐⭐⭐
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const toggleBtn = document.getElementById("themeToggle");
+        if(localStorage.getItem("theme")==="light"){
+            document.body.classList.add("light");
+            toggleBtn.textContent="☀️";
+        }
+        toggleBtn.onclick=()=>{
+            document.body.classList.toggle("light");
+            if(document.body.classList.contains("light")){
+                localStorage.setItem("theme","light");
+                toggleBtn.textContent="☀️";
+            }else{
+                localStorage.setItem("theme","dark");
+                toggleBtn.textContent="🌙";
+            }
+        }
+    </script>
+</body>
+</html>

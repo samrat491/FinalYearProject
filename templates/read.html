@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ story[0] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="reader-active">
+    
+    <div class="navbar purple-nav" style="box-shadow: none;">
+        <div class="nav-left">
+            <a href="/home" style="color: white; text-decoration: none; font-weight: bold;">← Back to Home</a>
+        </div>
+    </div>
+
+    <div class="reader-container">
+        <div class="story-header">
+            <h1 style="margin-bottom: 5px;">{{ story[0] }}</h1>
+            <p style="margin: 0; opacity: 0.8; font-family: sans-serif;">Author: {{ story[1] }}</p>
+        </div>
+
+        <div class="settings-bar">
+            <div>
+                <button onclick="changeFont(-2)">A-</button>
+                <button onclick="changeFont(2)">A+</button>
+            </div>
+            <div>
+                <div class="color-btn" style="background:#f4f5f7;" onclick="setTheme('light')" title="Light"></div>
+                <div class="color-btn" style="background:#f4ecd8;" onclick="setTheme('sepia')" title="Sepia"></div>
+                <div class="color-btn" style="background:#121212;" onclick="setTheme('dark')" title="Dark"></div>
+            </div>
+            <select id="chapSelect" onchange="jumpChap(this.value)">
+                {% for chapter in chapters %}
+                    <option value="{{ loop.index0 }}">Chapter {{ chapter[0] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div id="chapters-wrapper">
+            {% for chapter in chapters %}
+                <div class="chapter-block" id="chap-{{ loop.index0 }}">
+                    <h2 style="text-align:center; margin-bottom: 30px;">Chapter {{ chapter[0] }}: {{ chapter[1] }}</h2>
+                    <div class="chapter-text">{{ chapter[2] }}</div>
+                </div>
+            {% else %}
+                <p style="text-align:center; font-family: sans-serif;">No chapters published yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if chapters %}
+    <div class="bottom-nav">
+        <button id="btnPrev" onclick="navChap(-1)">← Prev</button>
+        <button id="btnNext" onclick="navChap(1)">Next →</button>
+    </div>
+    {% endif %}
+
+    <script>
+        let curr = 0; 
+        const total = {{ chapters|length }}; 
+        let fSize = 18;
+
+        // Handles Light/Sepia/Dark modes
+        function setTheme(theme) {
+            document.body.className = 'reader-active'; // Resets to base
+            if(theme !== 'light') document.body.classList.add(theme + '-mode');
+            localStorage.setItem('readerTheme', theme);
+        }
+        setTheme(localStorage.getItem('readerTheme') || 'light');
+
+        // Handles Font Resizing
+        function changeFont(change) {
+            fSize = Math.max(14, Math.min(32, fSize + change));
+            document.documentElement.style.setProperty('--font-size', fSize + 'px');
+        }
+
+        // Handles showing only 1 chapter at a time
+        function showChap(idx) {
+            if (total === 0) return;
+            document.querySelectorAll('.chapter-block').forEach(c => c.classList.remove('active'));
+            document.getElementById('chap-' + idx).classList.add('active');
+            
+            document.getElementById('chapSelect').value = idx;
+            document.getElementById('btnPrev').disabled = (idx === 0);
+            document.getElementById('btnNext').disabled = (idx === total - 1);
+            window.scrollTo(0, 0); // Scroll to top when changing chapter
+        }
+
+        // Previous / Next Buttons
+        function navChap(dir) {
+            let n = curr + dir;
+            if(n >= 0 && n < total) { curr = n; showChap(curr); }
+        }
+
+        // Dropdown Menu
+        function jumpChap(val) { curr = parseInt(val); showChap(curr); }
+
+        // Start on Chapter 1
+        window.onload = () => showChap(0);
+    </script>
+</body>
+</html>

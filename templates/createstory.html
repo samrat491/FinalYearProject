@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Story</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Fixes zoomed image and styles the remove button */
+        #uploadBox { background-size: cover; background-position: center; background-repeat: no-repeat; }
+        .remove-btn { 
+            position: absolute; top: -10px; right: -10px; background: #ff4c4c; color: white; 
+            border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; 
+            display: none; align-items: center; justify-content: center; z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard">← Back to Dashboard</a>
+        <div class="topbar-title">Create new Story</div>
+        <div></div>
+    </div>
+    
+    <form action="/chapter" method="POST" class="container" id="createStoryForm">
+        
+        <input type="hidden" name="genre" id="hiddenGenre">
+        <input type="hidden" name="tags" id="hiddenTags">
+
+        <div class="section-title">Story Metadata</div>
+        <div class="section-sub">Fill in the details about your story</div>
+        
+        <label>Title</label>
+        <input type="text" name="title" placeholder="Enter story title" required>
+        
+        <label>Cover Image</label>
+        <div class="cover-section">
+            <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+            
+            <div style="position: relative; display: inline-block;">
+                <div class="upload-box" id="uploadBox">
+                    <span id="uploadText">⬆</span>
+                </div>
+                <button type="button" id="removeCoverBtn" class="remove-btn">✖</button>
+            </div>
+
+            <div class="upload-info">
+                Recommended size: 800×1200px<br>
+                Formats: JPG, PNG (Max 5MB)<br>
+                Click the box or paste an image (Ctrl + V)
+            </div>
+        </div>
+        
+        <label>Genre</label>
+        <div class="genre-box">
+            <div class="genre-grid">
+                <button class="genre-btn">Fantasy</button>
+                <button class="genre-btn">Action</button>
+                <button class="genre-btn">Adventure</button>
+                <button class="genre-btn">Martial Arts</button>
+                <button class="genre-btn">Historical</button>
+                <button class="genre-btn">Science Fiction</button>
+                <button class="genre-btn">Horror</button>
+                <button class="genre-btn">Mystery</button>
+                <button class="genre-btn">Cultivation</button>
+                <button class="genre-btn">Thriller</button>
+            </div>
+        </div>
+        
+        <label>Tags (Select up to 10)</label>
+        <div class="tags-box">
+            <div class="tags-title">Popular tags:</div>
+            <div class="tag-grid">
+                <button class="tag-btn">Sword and Sorcery</button>
+                <button class="tag-btn">Dark Fantasy</button>
+                <button class="tag-btn">Light Fantasy</button>
+                <button class="tag-btn">Legendary Weapon</button>
+                <button class="tag-btn">Monster Hunting</button>
+                <button class="tag-btn">Survival Game</button>
+                <button class="tag-btn">Dungeon Exploration</button>
+                <button class="tag-btn">Cultivation Competition</button>
+                <button class="tag-btn">Apolcalypse</button>
+                <button class="tag-btn">Post Apocalypse</button>
+                <button class="tag-btn">Cultivation</button>
+                <button class="tag-btn">Reincarnation</button>
+                <button class="tag-btn">Overpowered Hero</button>
+                <button class="tag-btn">Strong Male Lead</button>
+                <button class="tag-btn">Magic System</button>
+                <button class="tag-btn">Time Travel</button>
+                <button class="tag-btn">Revenge</button>
+                <button class="tag-btn">Empire Building</button>
+                <button class="tag-btn">Demon King</button>
+                <button class="tag-btn">Sword Master</button>
+                <button class="tag-btn">Legendary Treasure</button>
+                <button class="tag-btn">Political Intrigue</button>
+                <button class="tag-btn">War Strategy</button>
+                <button class="tag-btn">Sect</button>
+                <button class="tag-btn">Supernatural Powers</button>
+                <button class="tag-btn">God Level Power</button>
+                <button class="tag-btn">Dragon</button>
+                <button class="tag-btn">Battle Arena</button>
+                <button class="tag-btn">Transmigration</button>
+                <button class="tag-btn">Secret Technique</button>
+                <button class="tag-btn">Adventure Quest</button>
+                <button class="tag-btn">Martial Arts World</button>
+                <button class="tag-btn">Genius Protagonist</button>
+            </div>
+        </div>
+        
+        <label>Synopsis</label>
+        <textarea name="synopsis" placeholder="Write a short summary of your story..." required></textarea>
+        
+        <div class="form-buttons">
+            <a href="/dashboard" class="cancel-btn">Cancel</a>
+            <button type="submit" class="continue-btn">Continue to Chapter Editor</button>
+        </div>
+    </form>
+
+    <script>
+        const genreButtons = document.querySelectorAll(".genre-btn");
+        genreButtons.forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault(); 
+                genreButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+            };
+        });
+
+        const tagButtons = document.querySelectorAll(".tag-btn");
+        tagButtons.forEach(btn => {
+            btn.onclick = (e) => {
+                e.preventDefault(); 
+                btn.classList.toggle("active");
+            };
+        });
+
+        const form = document.getElementById("createStoryForm");
+        form.addEventListener("submit", function(e){
+            const activeGenre = document.querySelector(".genre-btn.active");
+            const activeTags = document.querySelectorAll(".tag-btn.active");
+            
+            if(!activeGenre){
+                alert("Please select a genre");
+                e.preventDefault();
+                return;
+            }
+            if(activeTags.length === 0){
+                alert("Please select at least one tag");
+                e.preventDefault();
+                return;
+            }
+
+            document.getElementById("hiddenGenre").value = activeGenre.innerText;
+            
+            let tagArray = [];
+            activeTags.forEach(tag => tagArray.push(tag.innerText));
+            document.getElementById("hiddenTags").value = tagArray.join(", ");
+        });
+    </script>
+
+    <script>
+        const uploadBox = document.getElementById("uploadBox");
+        const coverInput = document.getElementById("coverInput");
+        const uploadText = document.getElementById("uploadText");
+        const removeCoverBtn = document.getElementById("removeCoverBtn"); // Added variable
+
+        uploadBox.addEventListener("click", () => coverInput.click());
+
+        coverInput.addEventListener("change", () => {
+            const file = coverInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    uploadBox.style.backgroundImage = `url(${e.target.result})`;
+                    uploadText.style.display = "none";
+                    removeCoverBtn.style.display = "flex"; // Show X button
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.addEventListener("paste", e => {
+            const items = e.clipboardData.items;
+            for (let i=0; i<items.length; i++) {
+                if (items[i].type.indexOf("image") !== -1) {
+                    const file = items[i].getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = event => {
+                        uploadBox.style.backgroundImage = `url(${event.target.result})`;
+                        uploadText.style.display = "none";
+                        removeCoverBtn.style.display = "flex"; // Show X button
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        // Function to clear the image
+        removeCoverBtn.addEventListener("click", (e) => {
+            e.stopPropagation(); // Prevent opening the file picker
+            uploadBox.style.backgroundImage = "none";
+            uploadText.style.display = "block";
+            removeCoverBtn.style.display = "none";
+            coverInput.value = ""; 
+        });
+    </script>
+</body>
+</html>
