@@ -12,11 +12,16 @@
         <input type="hidden" name="genre" value="{{ story_data.genre }}">
         <input type="hidden" name="tags" value="{{ story_data.tags }}">
         <input type="hidden" name="synopsis" value="{{ story_data.synopsis }}">
+        <input type="hidden" name="cover_image" value="{{ story_data.cover_image }}">
 
         <div class="topbar">
             <a href="/create-story" class="back-link">← Back to Metadata</a>
             <div class="chapter-title">Chapter Editor: {{ story_data.title }}</div>
-            <button type="submit" class="publish-btn">📄 Publish</button>
+            
+            <div class="topbar-actions">
+                <button type="button" id="themeToggle" class="topbar-theme-btn">🌙</button>
+                <button type="submit" class="publish-btn">📄 Publish</button>
+            </div>
         </div>
         
         <div class="chapter-container">
@@ -40,6 +45,7 @@
     </form>
     
     <script>
+        // Word Counter Logic
         const textarea = document.getElementById("chapterText");
         const counter = document.getElementById("wordCounter");
         textarea.addEventListener("input", () => {
@@ -51,6 +57,23 @@
             const words = text.split(/\s+/).length;
             counter.textContent = "Words: " + words;
         });
+
+        // Theme Toggle Logic
+        const toggleBtn = document.getElementById("themeToggle");
+        if(localStorage.getItem("theme") === "light"){
+            document.body.classList.add("light");
+            toggleBtn.textContent = "☀️";
+        }
+        toggleBtn.onclick = () => {
+            document.body.classList.toggle("light");
+            if(document.body.classList.contains("light")){
+                localStorage.setItem("theme", "light");
+                toggleBtn.textContent = "☀️";
+            } else {
+                localStorage.setItem("theme", "dark");
+                toggleBtn.textContent = "🌙";
+            }
+        }
     </script>
 </body>
 </html>

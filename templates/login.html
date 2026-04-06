@@ -8,17 +8,10 @@
 
 <div class="navbar">
     <div class="nav-left">
-
-
-        <a href="/home" class="nav-link">
-🏠 Home
-</a>
-
-<a class="nav-link">👤 About</a>
-<a class="nav-link">🔎 Filter</a>
-<a href="/dashboard" class="nav-link">📘 Dashboard</a>
-
-
+        <a href="/home" class="nav-link">🏠 Home</a>
+        <a class="nav-link">👤 About</a>
+        <a class="nav-link">🔎 Filter</a>
+        <a href="/dashboard" class="nav-link">📘 Dashboard</a>
     </div>
     <div class="nav-right">
         <input type="text" placeholder="Search">
@@ -33,9 +26,9 @@
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
 
-        <div class="options">
+        <div class="options" style="justify-content: center;">
             <label><input type="checkbox"> Remember me</label>
-            <a href="#">Forgot Password?</a>
+            <!-- Removed the Forgot Password link from here -->
         </div>
 
         <button class="btn">Log In</button>
@@ -44,14 +37,11 @@
             <p class="error">{{ msg }}</p>
         {% endfor %}
 
-        <p class="text">Sign in using your account with</p>
+        <!-- Added Register Link Here -->
+        <p class="link" style="text-align: center; margin-top: 15px; font-size: 14px;">
+            Don't have an account? <a href="/register" style="color: #8a2be2; text-decoration: none; font-weight: bold;">Register here</a>
+        </p>
 
-        <div class="social">
-            <div class="google">G</div>
-            <div class="facebook">f</div>
-        </div>
-
-        <p class="link">No account? <a href="/register">Register</a></p>
     </form>
 </div>
 

@@ -732,10 +732,148 @@ textarea {
 }
 
 
+/* =========================================================
+   COZY LIGHT MODE: YELLOW, CREAM & WARM GREY
+========================================================= */
+
+/* 1. Base Background & Soft Text */
+/* A warm off-white/cream background with charcoal grey text */
+body.light {
+    background-color: #fcfbf7;
+    color: #4a4744; 
+}
+
+/* 2. Topbar Navigation */
+/* Soft beige-grey topbar that feels like a physical page header */
+body.light .topbar {
+    background-color: #f4f1ea;
+    border-bottom: 1px solid #e4ddd1;
+    box-shadow: 0 2px 8px rgba(120, 110, 100, 0.04);
+    color: #3b3835;
+}
+body.light .topbar a.back-link, 
+body.light .topbar a,
+body.light .topbar-title,
+body.light .topbar-theme-btn {
+    color: #4a4744;
+}
+
+/* 3. Text & Labels */
+body.light label, 
+body.light .section-title {
+    color: #3b3835;
+    font-weight: 600;
+}
+body.light .section-sub, 
+body.light .upload-info, 
+body.light .word-counter {
+    color: #858079;
+}
+
+/* 4. Input Fields & Textareas (Typing areas) */
+/* Pure white for writing, but with warm grey borders */
+body.light input[type="text"], 
+body.light input[type="number"], 
+body.light textarea,
+body.light .chapter-title-input,
+body.light .chapter-number,
+body.light .chapter-textarea {
+    background-color: #ffffff;
+    color: #3b3835;
+    border: 1px solid #ddd8ce;
+    border-radius: 8px; 
+    transition: all 0.3s ease;
+}
+
+body.light input::placeholder, 
+body.light textarea::placeholder {
+    color: #aba59c;
+}
+
+/* A cozy, warm golden-yellow glow when you click to type */
+body.light input:focus, 
+body.light textarea:focus {
+    border-color: #e5c07b;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(229, 192, 123, 0.25);
+}
+
+/* 5. Containers (The main cards) */
+/* White boxes with a very soft, warm shadow */
+body.light .genre-box,
+body.light .tags-box,
+body.light .chapter-container,
+body.light .chapter-content-box {
+    background-color: #ffffff;
+    border: 1px solid #efebd8;
+    box-shadow: 0 8px 24px rgba(140, 130, 115, 0.06);
+}
+
+/* 6. Image Upload Box */
+/* A subtle pastel yellow background to invite clicks */
+body.light .upload-box {
+    background-color: #fdfceb;
+    border: 2px dashed #ded8c4;
+    transition: 0.2s ease;
+}
+body.light .upload-box:hover {
+    background-color: #fbf8d6;
+    border-color: #d1c8a6;
+}
+body.light #uploadText {
+    color: #a39c89;
+}
+
+/* 7. Tag & Genre Buttons */
+body.light .tags-title {
+    color: #4a4744;
+    font-weight: 600;
+}
+/* Idle buttons: Light warm grey */
+body.light .genre-btn,
+body.light .tag-btn {
+    background-color: #f5f3ec;
+    color: #635e58;
+    border: 1px solid #e8e5db;
+    transition: all 0.2s ease;
+}
+body.light .genre-btn:hover,
+body.light .tag-btn:hover {
+    background-color: #ebe7db;
+    color: #3b3835;
+}
+/* Active (Selected) buttons: A beautiful soft mustard/golden yellow */
+body.light .genre-btn.active,
+body.light .tag-btn.active {
+    background-color: #f2d472; 
+    color: #42350c; /* Dark brown text for contrast */
+    border-color: #e6c555;
+    box-shadow: 0 4px 12px rgba(242, 212, 114, 0.35);
+}
+
+/* 8. Action Buttons (Cancel) */
+body.light .cancel-btn {
+    background-color: #eae6df;
+    color: #5c5852;
+    font-weight: 600;
+}
+body.light .cancel-btn:hover {
+    background-color: #ded8ce;
+    color: #2b2926;
+}
 
 
 
-/* === NOVEL READER UI (STRICTLY SCOPED) === */
+
+
+
+
+
+
+/* ======================================================
+   Read Page
+====================================================== */
+
 body.reader-active {
     --bg: #f4f5f7; --text: #2c3e50; --panel: #ffffff; --border: #e0e0e0;
     background-color: var(--bg); color: var(--text);

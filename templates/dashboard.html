@@ -8,7 +8,7 @@
 
 <div class="navbar">
     <div class="nav-left">
-        <span>🏠 Home</span>
+        <a href="/home" style="color: inherit; text-decoration: none;"><span>🏠 Home</span></a>
         <span>👤 About</span>
         <span>🔎 Filter</span>
         <span>📘 Dashboard</span>
@@ -28,47 +28,47 @@
     <div class="stats">
         <div class="stat-card">
             <div class="stat-title">👁 Total Views</div>
-            <div class="stat-value">24,353</div>
+            <div class="stat-value">0</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">📚 Stories</div>
-            <div class="stat-value">3</div>
+            <div class="stat-value">{{ total_stories }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">❤️ Followers</div>
-            <div class="stat-value">3,548</div>
+            <div class="stat-value">0</div>
         </div>
     </div>
 
-<a href="/create-story" class="btn create-btn">➕ Create New Story</a>
+    <a href="/create-story" class="btn create-btn" style="display:inline-block; margin-bottom: 20px;">➕ Create New Story</a>
 
     <h2>Your Stories</h2>
 
-    <div class="story-card">
-        <div>
-            <h3>Rise of the Crimson Phoenix</h3>
-            <p>👁 15,432 views • 📖 45 chapters • ⏱ 2 hours ago</p>
+    {% for story in stories %}
+        <div class="story-card" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="margin-bottom: 5px;">
+                    <a href="/read/{{ story[0] }}" style="text-decoration: none; color: inherit;">{{ story[1] }}</a>
+                </h3>
+                <p style="margin-top: 0;">📖 {{ story[2] }} chapters • ⏱ Updated recently</p>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <a href="/edit/{{ story[0] }}" class="btn small-btn" style="text-decoration: none; text-align: center; display: inline-block;">Edit</a>
+                
+                <form action="/delete-story/{{ story[0] }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete this story?');" style="margin: 0;">
+                    <button type="submit" class="btn small-btn" style="background: #ff4c4c; color: white; border: none; cursor: pointer;">Delete</button>
+                </form>
+            </div>
         </div>
-        <button class="btn small-btn">Edit</button>
-    </div>
-
-    <div class="story-card">
-        <div>
-            <h3>Shadows of the Eternal Realm</h3>
-            <p>👁 0 views • 📖 12 chapters • ⏱ 1 hour ago</p>
+    {% else %}
+        <div style="text-align: center; padding: 30px; border: 1px dashed #ccc; border-radius: 8px; margin-bottom: 20px;">
+            <p style="color: #888;">You haven't published any stories yet.</p>
+            <p>Click <strong>+ Create New Story</strong> to get started!</p>
         </div>
-        <button class="btn small-btn">Edit</button>
-    </div>
+    {% endfor %}
 
-    <div class="story-card">
-        <div>
-            <h3>Sword Saint's Redemption</h3>
-            <p>👁 8,452 views • 📖 30 chapters • ⏱ 3 days ago</p>
-        </div>
-        <button class="btn small-btn">Edit</button>
-    </div>
-
-    <a class="btn logout-btn" href="/logout">🚪 Logout</a>
+    <a class="btn logout-btn" href="/logout" style="display:inline-block; margin-top: 20px;">🚪 Logout</a>
 </div>
 
 <script>
