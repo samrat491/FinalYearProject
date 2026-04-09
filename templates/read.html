@@ -40,7 +40,8 @@
             {% for chapter in chapters %}
                 <div class="chapter-block" id="chap-{{ loop.index0 }}">
                     <h2 style="text-align:center; margin-bottom: 30px;">Chapter {{ chapter[0] }}: {{ chapter[1] }}</h2>
-                    <div class="chapter-text">{{ chapter[2] }}</div>
+                    <!-- CRITICAL FIX: Added white-space: pre-wrap -->
+                    <div class="chapter-text" style="white-space: pre-wrap; line-height: 1.8;">{{ chapter[2] }}</div>
                 </div>
             {% else %}
                 <p style="text-align:center; font-family: sans-serif;">No chapters published yet.</p>
@@ -57,24 +58,20 @@
 
     <script>
         let curr = 0; 
-        const total = {{ chapters|length }}; 
-        let fSize = 18;
+        const total = parseInt('{{ chapters|length }}', 10) || 0;        let fSize = 18;
 
-        // Handles Light/Sepia/Dark modes
         function setTheme(theme) {
-            document.body.className = 'reader-active'; // Resets to base
+            document.body.className = 'reader-active'; 
             if(theme !== 'light') document.body.classList.add(theme + '-mode');
             localStorage.setItem('readerTheme', theme);
         }
         setTheme(localStorage.getItem('readerTheme') || 'light');
 
-        // Handles Font Resizing
         function changeFont(change) {
             fSize = Math.max(14, Math.min(32, fSize + change));
             document.documentElement.style.setProperty('--font-size', fSize + 'px');
         }
 
-        // Handles showing only 1 chapter at a time
         function showChap(idx) {
             if (total === 0) return;
             document.querySelectorAll('.chapter-block').forEach(c => c.classList.remove('active'));
@@ -83,19 +80,16 @@
             document.getElementById('chapSelect').value = idx;
             document.getElementById('btnPrev').disabled = (idx === 0);
             document.getElementById('btnNext').disabled = (idx === total - 1);
-            window.scrollTo(0, 0); // Scroll to top when changing chapter
+            window.scrollTo(0, 0); 
         }
 
-        // Previous / Next Buttons
         function navChap(dir) {
             let n = curr + dir;
             if(n >= 0 && n < total) { curr = n; showChap(curr); }
         }
 
-        // Dropdown Menu
         function jumpChap(val) { curr = parseInt(val); showChap(curr); }
 
-        // Start on Chapter 1
         window.onload = () => showChap(0);
     </script>
 </body>

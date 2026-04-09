@@ -868,6 +868,31 @@ body.light .cancel-btn:hover {
 
 
 
+/* --- EDIT PAGE CHAPTER LIST --- */
+.chapter-list-item {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 15px; 
+    border-bottom: 1px solid #333; 
+    transition: 0.2s;
+}
+.chapter-list-item:hover { 
+    background-color: rgba(255,255,255,0.05); 
+}
+
+/* Light Mode Override for Chapter List */
+body.light .chapter-list-item { 
+    border-bottom: 1px solid #efebd8; 
+}
+body.light .chapter-list-item:hover { 
+    background-color: rgba(0,0,0,0.02); 
+}
+
+
+
+
+
 
 
 /* ======================================================

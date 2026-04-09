@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Chapter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <form action="/edit-chapter/{{ chapter[0] }}" method="POST">
+        <div class="topbar">
+            <a href="/edit/{{ chapter[1] }}" class="back-link">← Back to Story</a>
+            <div class="chapter-title">Editing: {{ chapter[5] }}</div>
+            <div class="topbar-actions">
+                <button type="button" id="themeToggle" class="topbar-theme-btn">🌙</button>
+                <button type="submit" class="publish-btn">💾 Update Chapter</button>
+            </div>
+        </div>
+        
+        <div class="chapter-container">
+            <div class="chapter-row">
+                <div class="chapter-field">
+                    <label>Chapter Number</label>
+                    <input type="number" name="chapter_number" value="{{ chapter[2] }}" class="chapter-number" required/>
+                </div>
+                <div class="chapter-field">
+                    <label>Chapter Title</label>
+                    <input type="text" name="chapter_title" value="{{ chapter[3] }}" class="chapter-title-input" required/>
+                </div>
+            </div>
+            <div class="chapter-content-box">
+                <label>Chapter Content</label>
+                <textarea name="content" class="chapter-textarea" id="chapterText" required>{{ chapter[4] }}</textarea>
+                <div class="word-counter" id="wordCounter">Words: 0</div>
+            </div>
+        </div>
+    </form>
+    
+    <script>
+        const textarea = document.getElementById("chapterText");
+        const counter = document.getElementById("wordCounter");
+        function updateCount() {
+            const text = textarea.value.trim();
+            counter.textContent = text === "" ? "Words: 0" : "Words: " + text.split(/\s+/).length;
+        }
+        textarea.addEventListener("input", updateCount);
+        updateCount(); 
+
+        const toggleBtn = document.getElementById("themeToggle");
+        if(localStorage.getItem("theme")==="light"){ document.body.classList.add("light"); toggleBtn.textContent="☀️"; }
+        toggleBtn.onclick=()=>{
+            document.body.classList.toggle("light");
+            localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark");
+            toggleBtn.textContent = document.body.classList.contains("light") ? "☀️" : "🌙";
+        }
+    </script>
+</body>
+</html>

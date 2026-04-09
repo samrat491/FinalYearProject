@@ -143,11 +143,126 @@ def create_story():
         return redirect("/")
     return render_template("createstory.html")
 
-@app.route("/edit/<int:story_id>")
+
+# 1. EDIT STORY METADATA & MANAGE CHAPTERS
+@app.route("/edit/<int:story_id>", methods=["GET", "POST"])
 def edit_story(story_id):
-    if "user" not in session:
-        return redirect("/")
-    return f"<h3>Edit page for story #{story_id} is under construction!</h3><a href='/dashboard'>Go back</a>"
+    if "user" not in session: return redirect("/")
+    author = session["user"]
+    db = get_db()
+    cursor = db.cursor()
+
+    # Verify the user actually owns this story
+    cursor.execute("SELECT * FROM stories WHERE id=? AND author_name=?", (story_id, author))
+    story = cursor.fetchone()
+    
+    if not story:
+        db.close()
+        return redirect("/dashboard")
+
+    if request.method == "POST":
+        title = request.form.get("title")
+        genre = request.form.get("genre")
+        tags = request.form.get("tags")
+        synopsis = request.form.get("synopsis")
+        
+        cover_image_name = story[6] # Keep old image by default
+        
+        # If they uploaded a new cover, save it!
+        if 'cover' in request.files:
+            file = request.files['cover']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                cover_image_name = filename
+
+        cursor.execute("""
+            UPDATE stories SET title=?, genre=?, tags=?, synopsis=?, cover_image=? 
+            WHERE id=?
+        """, (title, genre, tags, synopsis, cover_image_name, story_id))
+        db.commit()
+        flash("Story updated successfully!")
+        return redirect(f"/edit/{story_id}")
+
+    # Fetch all chapters for this story to display in the list
+    cursor.execute("SELECT id, chapter_number, chapter_title FROM chapters WHERE story_id=? ORDER BY chapter_number ASC", (story_id,))
+    chapters = cursor.fetchall()
+    db.close()
+    
+    return render_template("edit.html", story=story, chapters=chapters)
+
+# 2. EDIT AN EXISTING CHAPTER
+@app.route("/edit-chapter/<int:chapter_id>", methods=["GET", "POST"])
+def edit_chapter(chapter_id):
+    if "user" not in session: return redirect("/")
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch the chapter and ensure the logged-in user owns the parent story
+    cursor.execute("""
+        SELECT chapters.*, stories.title 
+        FROM chapters 
+        JOIN stories ON chapters.story_id = stories.id 
+        WHERE chapters.id = ? AND stories.author_name = ?
+    """, (chapter_id, session["user"]))
+    chapter = cursor.fetchone()
+    
+    if not chapter:
+        db.close()
+        return redirect("/dashboard")
+        
+    story_id = chapter[1]
+
+    if request.method == "POST":
+        chap_number = request.form.get("chapter_number")
+        chap_title = request.form.get("chapter_title")
+        content = request.form.get("content")
+        
+        cursor.execute("""
+            UPDATE chapters SET chapter_number=?, chapter_title=?, content=? WHERE id=?
+        """, (chap_number, chap_title, content, chapter_id))
+        db.commit()
+        db.close()
+        return redirect(f"/edit/{story_id}")
+        
+    db.close()
+    return render_template("edit_chapter.html", chapter=chapter)
+
+# 3. ADD A NEW CHAPTER TO AN EXISTING STORY
+@app.route("/add-chapter/<int:story_id>", methods=["GET", "POST"])
+def add_chapter(story_id):
+    if "user" not in session: return redirect("/")
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Verify ownership
+    cursor.execute("SELECT id, title FROM stories WHERE id=? AND author_name=?", (story_id, session["user"]))
+    story = cursor.fetchone()
+    if not story: return redirect("/dashboard")
+
+    if request.method == "POST":
+        chap_number = request.form.get("chapter_number")
+        chap_title = request.form.get("chapter_title")
+        content = request.form.get("content")
+        
+        cursor.execute("""
+            INSERT INTO chapters (story_id, chapter_number, chapter_title, content) 
+            VALUES (?, ?, ?, ?)
+        """, (story_id, chap_number, chap_title, content))
+        db.commit()
+        db.close()
+        return redirect(f"/edit/{story_id}")
+
+    # Automatically calculate the next chapter number
+    cursor.execute("SELECT MAX(chapter_number) FROM chapters WHERE story_id=?", (story_id,))
+    max_chap = cursor.fetchone()[0]
+    next_chap = (max_chap or 0) + 1
+    db.close()
+    
+    return render_template("add_chapter.html", story=story, next_chap=next_chap)
+
+
+
 
 @app.route("/delete-story/<int:story_id>", methods=["POST"])
 def delete_story(story_id):

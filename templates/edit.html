@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Story</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="topbar">
+        <a href="/dashboard" class="back-link">← Back to Dashboard</a>
+        <div class="topbar-title">Editing: {{ story[2] }}</div>
+        <div>
+            <button type="button" id="themeToggle" class="topbar-theme-btn">🌙</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Edit Metadata Form -->
+        <form action="/edit/{{ story[0] }}" method="POST" id="editStoryForm" enctype="multipart/form-data">
+            <input type="hidden" name="genre" id="hiddenGenre" value="{{ story[3] }}">
+            <input type="hidden" name="tags" id="hiddenTags" value="{{ story[4] }}">
+
+            <div class="section-title">Update Story Details</div>
+            
+            <label>Title</label>
+            <input type="text" name="title" value="{{ story[2] }}" required>
+            
+            <label>Cover Image (Leave empty to keep current image)</label>
+            <div class="cover-section">
+                <input type="file" id="coverInput" name="cover" accept="image/*" style="display:none;">
+                <div style="position: relative; display: inline-block;">
+                <div class="upload-box" id="uploadBox" style="background-image: url('{{ url_for("static", filename="uploads/" ~ story[6]) }}');"></div>                </div>
+            </div>
+            
+            <label>Genre</label>
+            <div class="genre-box">
+                <div class="genre-grid">
+                    <button class="genre-btn">Fantasy</button>
+                    <button class="genre-btn">Action</button>
+                    <button class="genre-btn">Adventure</button>
+                    <button class="genre-btn">Martial Arts</button>
+                    <button class="genre-btn">Historical</button>
+                    <button class="genre-btn">Science Fiction</button>
+                    <button class="genre-btn">Horror</button>
+                    <button class="genre-btn">Mystery</button>
+                    <button class="genre-btn">Cultivation</button>
+                    <button class="genre-btn">Thriller</button>
+                </div>
+            </div>
+
+            <label>Tags</label>
+            <div class="tags-box">
+                <div class="tag-grid">
+                    <button class="tag-btn">Sword and Sorcery</button>
+                <button class="tag-btn">Dark Fantasy</button>
+                <button class="tag-btn">Light Fantasy</button>
+                <button class="tag-btn">Legendary Weapon</button>
+                <button class="tag-btn">Monster Hunting</button>
+                <button class="tag-btn">Survival Game</button>
+                <button class="tag-btn">Dungeon Exploration</button>
+                <button class="tag-btn">Cultivation Competition</button>
+                <button class="tag-btn">Apolcalypse</button>
+                <button class="tag-btn">Post Apocalypse</button>
+                <button class="tag-btn">Cultivation</button>
+                <button class="tag-btn">Reincarnation</button>
+                <button class="tag-btn">Overpowered Hero</button>
+                <button class="tag-btn">Strong Male Lead</button>
+                <button class="tag-btn">Magic System</button>
+                <button class="tag-btn">Time Travel</button>
+                <button class="tag-btn">Revenge</button>
+                <button class="tag-btn">Empire Building</button>
+                <button class="tag-btn">Demon King</button>
+                <button class="tag-btn">Sword Master</button>
+                <button class="tag-btn">Legendary Treasure</button>
+                <button class="tag-btn">Political Intrigue</button>
+                <button class="tag-btn">War Strategy</button>
+                <button class="tag-btn">Sect</button>
+                <button class="tag-btn">Supernatural Powers</button>
+                <button class="tag-btn">God Level Power</button>
+                <button class="tag-btn">Dragon</button>
+                <button class="tag-btn">Battle Arena</button>
+                <button class="tag-btn">Transmigration</button>
+                <button class="tag-btn">Secret Technique</button>
+                <button class="tag-btn">Adventure Quest</button>
+                <button class="tag-btn">Martial Arts World</button>
+                <button class="tag-btn">Genius Protagonist</button>
+                </div>
+            </div>
+            
+            <label>Synopsis</label>
+            <textarea name="synopsis" required style="min-height: 120px;">{{ story[5] }}</textarea>
+            
+            <button type="submit" class="continue-btn" style="width: 100%; margin-top: 20px;">💾 Save Details</button>
+        </form>
+
+        <hr style="margin: 40px 0; border: 0; border-top: 1px solid #ccc;">
+
+        <!-- Manage Chapters Section -->
+        <div class="section-title">Manage Chapters</div>
+        <div class="tags-box" style="padding: 0; overflow: hidden;">
+            {% for chap in chapters %}
+                <div class="chapter-list-item">
+                    <div style="font-weight: bold;">Chapter {{ chap[1] }}: {{ chap[2] }}</div>
+                    <a href="/edit-chapter/{{ chap[0] }}" class="btn small-btn" style="background: #5c4bfa; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px;">Edit</a>
+                </div>
+            {% else %}
+                <div style="padding: 20px; text-align: center; color: #888;">No chapters found.</div>
+            {% endfor %}
+        </div>
+        
+        <a href="/add-chapter/{{ story[0] }}" class="continue-btn" style="display: block; text-align: center; text-decoration: none; margin-top: 20px; background-color: #28a745;">➕ Add New Chapter</a>
+    </div>
+
+    <script>
+        // Pre-select the genre button
+        const savedGenre = document.getElementById("hiddenGenre").value;
+        const genreButtons = document.querySelectorAll(".genre-btn");
+        genreButtons.forEach(btn => {
+            if (btn.innerText === savedGenre) { btn.classList.add("active"); }
+            btn.onclick = (e) => {
+                e.preventDefault(); 
+                genreButtons.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+            };
+        });
+
+        // Pre-select the tag buttons
+        const savedTags = document.getElementById("hiddenTags").value.split(", ");
+        const tagButtons = document.querySelectorAll(".tag-btn");
+        tagButtons.forEach(btn => {
+            if (savedTags.includes(btn.innerText)) { btn.classList.add("active"); }
+            btn.onclick = (e) => {
+                e.preventDefault(); 
+                btn.classList.toggle("active");
+            };
+        });
+
+        // Intercept form submit to gather tags/genre
+        document.getElementById("editStoryForm").addEventListener("submit", function(e) {
+            const activeGenre = document.querySelector(".genre-btn.active");
+            if(activeGenre) { document.getElementById("hiddenGenre").value = activeGenre.innerText; }
+            
+            const activeTags = document.querySelectorAll(".tag-btn.active");
+            let tagArray = [];
+            activeTags.forEach(tag => tagArray.push(tag.innerText));
+            document.getElementById("hiddenTags").value = tagArray.join(", ");
+        });
+
+        // Image upload preview
+        const uploadBox = document.getElementById("uploadBox");
+        const coverInput = document.getElementById("coverInput");
+        uploadBox.addEventListener("click", () => coverInput.click());
+        coverInput.addEventListener("change", () => {
+            const file = coverInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => uploadBox.style.backgroundImage = `url(${e.target.result})`;
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Theme Toggle
+        const toggleBtn = document.getElementById("themeToggle");
+        if(localStorage.getItem("theme") === "light"){ document.body.classList.add("light"); toggleBtn.textContent = "☀️"; }
+        toggleBtn.onclick = () => {
+            document.body.classList.toggle("light");
+            if(document.body.classList.contains("light")){
+                localStorage.setItem("theme", "light"); toggleBtn.textContent = "☀️";
+            } else {
+                localStorage.setItem("theme", "dark"); toggleBtn.textContent = "🌙";
+            }
+        }
+    </script>
+</body>
+</html>
