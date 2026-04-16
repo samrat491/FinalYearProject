@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Stories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar purple-nav">
+        <div class="nav-left">
+            <a href="/home" class="nav-link" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">Home</a>
+        </div>
+        <div class="nav-right">
+            {% if 'user' in session %}
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+            {% else %}
+                <a href="/" class="nav-link">Login</a>
+                <button id="themeToggle">🌙</button>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="filter-container">
+        <h1 class="section-title">Discover New Stories</h1>
+        <p class="section-sub">Select one or more tags to find the perfect novel for you.</p>
+
+        <!-- Filter Selection Form -->
+        <form id="filterForm" method="GET" action="/filter">
+            <input type="hidden" name="tags" id="hiddenTags">
+
+            <div class="tags-box" style="margin-bottom: 20px;">
+                <div class="tag-grid" style="grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));">
+                    <button class="tag-btn">Sword and Sorcery</button>
+                    <button class="tag-btn">Dark Fantasy</button>
+                    <button class="tag-btn">Light Fantasy</button>
+                    <button class="tag-btn">Legendary Weapon</button>
+                    <button class="tag-btn">Monster Hunting</button>
+                    <button class="tag-btn">Survival Game</button>
+                    <button class="tag-btn">Dungeon Exploration</button>
+                    <button class="tag-btn">Cultivation Competition</button>
+                    <button class="tag-btn">Apolcalypse</button>
+                    <button class="tag-btn">Post Apocalypse</button>
+                    <button class="tag-btn">Cultivation</button>
+                    <button class="tag-btn">Reincarnation</button>
+                    <button class="tag-btn">Overpowered Hero</button>
+                    <button class="tag-btn">Strong Male Lead</button>
+                    <button class="tag-btn">Magic System</button>
+                    <button class="tag-btn">Time Travel</button>
+                    <button class="tag-btn">Revenge</button>
+                    <button class="tag-btn">Empire Building</button>
+                    <button class="tag-btn">Demon King</button>
+                    <button class="tag-btn">Sword Master</button>
+                    <button class="tag-btn">Legendary Treasure</button>
+                    <button class="tag-btn">Political Intrigue</button>
+                    <button class="tag-btn">War Strategy</button>
+                    <button class="tag-btn">Sect</button>
+                    <button class="tag-btn">Supernatural Powers</button>
+                    <button class="tag-btn">God Level Power</button>
+                    <button class="tag-btn">Dragon</button>
+                    <button class="tag-btn">Battle Arena</button>
+                    <button class="tag-btn">Transmigration</button>
+                    <button class="tag-btn">Secret Technique</button>
+                    <button class="tag-btn">Adventure Quest</button>
+                    <button class="tag-btn">Martial Arts World</button>
+                    <button class="tag-btn">Genius Protagonist</button>
+                </div>
+            </div>
+
+            <button type="submit" class="continue-btn">Search</button>
+        </form>
+
+        {% if searched %}
+            {% if stories %}
+                <div class="results-grid">
+                    {% for story in stories %}
+                        <div class="filter-story-card">
+                            {% if story.cover_image and story.cover_image != 'default.png' %}
+                                <img src="{{ url_for('static', filename='uploads/' + story.cover_image) }}" alt="Cover">
+                            {% else %}
+                                <div class="book big" style="margin: 0 auto; width: 100%; height: 200px;"></div>
+                            {% endif %}
+                            <h3>{{ story.title }}</h3>
+                            <p>{{ story.genre }}</p>
+                            <a href="/read/{{ story.id }}">Read Novel</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    We're sorry, but no stories match your selected criteria at this time. Please try a different combination!
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        // Pre-select tags based on URL parameters
+        const currentTags = {{ current_tags|tojson }};
+        const tagButtons = document.querySelectorAll(".tag-btn");
+        tagButtons.forEach(btn => {
+            if (currentTags.includes(btn.innerText)) {
+                btn.classList.add("active");
+            }
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                btn.classList.toggle("active");
+            });
+        });
+
+        // Populate hidden input on form submit
+        document.getElementById("filterForm").addEventListener("submit", function(e) {
+            const activeTags = document.querySelectorAll(".tag-btn.active");
+            let tagArray = [];
+            activeTags.forEach(tag => tagArray.push(tag.innerText));
+            document.getElementById("hiddenTags").value = tagArray.join(",");
+        });
+
+        const toggleBtn = document.getElementById("themeToggle");
+
+        if (localStorage.getItem("theme") === "light") {
+            document.body.classList.add("light");
+            toggleBtn.textContent = "☀️";
+        }
+
+        toggleBtn.addEventListener("click", () => {
+            document.body.classList.toggle("light");
+            if (document.body.classList.contains("light")) {
+                localStorage.setItem("theme", "light");
+                toggleBtn.textContent = "☀️";
+            } else {
+                localStorage.setItem("theme", "dark");
+                toggleBtn.textContent = "🌙";
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,13 +3,15 @@
 <head>
 <title>Register</title>
 <link rel="stylesheet"
-href="{{ url_for('static', filename='style.css') }}">
+    href="{{ url_for('static', filename='style.css') }}">
+<!-- Khalti Checkout SDK -->
+<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js"></script>
 </head>
 
 <body>
 <div class="center">
 
-<form method="POST" class="card">
+<form id="registerForm" method="POST" class="card">
 
 <h2>Register</h2>
 <button id="themeToggle">🌙</button>
@@ -39,8 +41,8 @@ type="password"
 placeholder="Password"
 required>
 
-<button class="btn">
-Register
+<button type="button" id="paymentBtn" class="btn" style="background: #5c2d91;">
+Pay Rs. 500 (Khalti Demo) & Register
 </button>
 
 {% for msg in get_flashed_messages() %}
@@ -83,6 +85,62 @@ localStorage.setItem("theme","dark");
 toggleBtn.textContent="🌙";
 }
 }
+</script>
+
+<!-- Khalti Mock Payment Integration -->
+<script>
+    var config = {
+        // Khalti disables old public dummy keys. For a guaranteed working demo:
+        // 1. Log in to your Khalti merchant dashboard (https://admin.khalti.com)
+        // 2. Go to Settings -> API Keys and paste your OWN "Test Public Key" below.
+        "publicKey": "test_public_key_dc74e0fd57cb46cd93832aee0a390234",
+        "productIdentity": "register_fee_01",
+        "productName": "Project Registration Fee",
+        "productUrl": window.location.origin,
+        "paymentPreference": [
+            "KHALTI"
+        ],
+        "eventHandler": {
+            onSuccess(payload) {
+                // Upon mock success, submit the form to the backend
+                document.getElementById("registerForm").submit();
+            },
+            onError(error) {
+                console.log(error);
+                alert("Payment widget encountered an error or was closed.");
+            },
+            onClose() {
+                console.log('Widget is closing');
+            }
+        }
+    };
+
+    var btn = document.getElementById("paymentBtn");
+    var checkout;
+    
+    try {
+        checkout = new KhaltiCheckout(config);
+    } catch (err) {
+        console.error("Khalti SDK could not be loaded:", err);
+    }
+
+    btn.onclick = function () {
+        // Only trigger payment if the form fields are filled correctly
+        var form = document.getElementById("registerForm");
+        
+        if (!checkout) {
+            alert("Khalti widget failed to load. Please check your internet connection or the SDK link.");
+            return;
+        }
+
+        if (form.checkValidity()) {
+            // Amount is in paisa (500 NPR = 50000 paisa)
+            checkout.show({ amount: 50000 });
+        } else {
+            // Shows default HTML5 validation errors if fields are empty
+            form.reportValidity();
+        }
+    }
 </script>
 
 </body>

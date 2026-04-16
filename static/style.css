@@ -259,6 +259,37 @@ margin-bottom:40px;
     margin-right:10px;
 }
 
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: calc(100% - 10px); /* Matches input width considering right margin */
+    background: #3a3a3a;
+    border-radius: 8px;
+    margin-top: 5px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+    overflow: hidden;
+    display: none;
+}
+
+.search-item {
+    display: block;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid #444;
+    font-size: 14px;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+.search-item:hover {
+    background: #4b3fd8;
+}
+
 .nav-link{
     color:white;
     text-decoration:none;
@@ -296,12 +327,6 @@ margin-bottom:40px;
 /* ======================================================
    BOOK DISPLAY (HOME PAGE)
 ====================================================== */
-
-.popular-row{
-    display:flex;
-    gap:20px;
-    margin:20px 0;
-}
 
 .book{
     width:120px;
@@ -416,6 +441,20 @@ body.light .link a {
     color: #4b3fd8;
 }
 
+/* Light Mode Overrides for Search Dropdown */
+body.light .search-dropdown {
+    background: white;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+body.light .search-item {
+    color: black;
+    border-bottom: 1px solid #eee;
+}
+
+body.light .search-item:hover {
+    background: #f4f6fb;
+}
 
 /* ======================================================
    LIGHT MODE - DASHBOARD
@@ -947,4 +986,99 @@ body.reader-active.sepia-mode { --bg: #f4ecd8; --text: #5b4636; --panel: #e8dcc4
 .reader-active .bottom-nav button:disabled { background: #555; cursor: not-allowed; opacity: 0.5; }
 
 
+/* ======================================================
+   FILTER PAGE
+====================================================== */
 
+.filter-container {
+    padding: 40px 80px;
+    text-align: center;
+}
+
+/* The form itself is just a wrapper now */
+.filter-container form {
+    margin-bottom: 40px;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 30px;
+    justify-items: center;
+    margin-top: 20px;
+}
+
+.filter-story-card {
+    background: #2e2e2e;
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    width: 150px;
+    transition: transform 0.3s;
+}
+
+.filter-story-card:hover {
+    transform: translateY(-5px);
+}
+
+.filter-story-card img {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #555;
+}
+
+.filter-story-card h3 {
+    font-size: 16px;
+    margin: 15px 0 5px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.filter-story-card p {
+    font-size: 12px;
+    color: #aaa;
+    margin: 0 0 15px;
+}
+
+.filter-story-card a {
+    display: inline-block;
+    background: #4b3fd8;
+    color: white;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 13px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: 0.2s;
+}
+
+.filter-story-card a:hover {
+    background: #5b54e8;
+}
+
+.no-results {
+    font-size: 18px;
+    color: #aaa;
+    margin-top: 40px;
+    background: #3a3a3a;
+    padding: 30px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+/* Light Mode Overrides for Filter */
+
+body.light .filter-story-card {
+    background: white;
+    border: 1px solid #efebd8;
+    box-shadow: 0 4px 12px rgba(140, 130, 115, 0.06);
+}
+
+body.light .filter-story-card h3 { color: #3b3835; }
+body.light .filter-story-card p { color: #858079; }
+body.light .no-results { background: white; color: #858079; border: 1px solid #efebd8; }
