@@ -16,7 +16,7 @@ body {
 
 .navbar {
     background: #4b3fd8;
-    padding: 15px 30px;
+    padding: 15px 30px; /* Reverted to original padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -935,56 +935,210 @@ body.light .chapter-list-item:hover {
 
 
 /* ======================================================
-   Read Page
+   MODERN READER PAGE
 ====================================================== */
 
-body.reader-active {
-    --bg: #f4f5f7; --text: #2c3e50; --panel: #ffffff; --border: #e0e0e0;
-    background-color: var(--bg); color: var(--text);
-    font-family: 'Georgia', serif; /* Professional reading font */
-    transition: all 0.3s ease; min-height: 100vh; margin: 0;
+:root {
+    --reader-font-size: 18px;
 }
 
-/* Themes */
-body.reader-active.dark-mode { --bg: #121212; --text: #b3b3b3; --panel: #1e1e1e; --border: #333; }
-body.reader-active.sepia-mode { --bg: #f4ecd8; --text: #5b4636; --panel: #e8dcc4; --border: #d0c0a0; }
-
-/* Container & Header */
-.reader-active .reader-container { max-width: 800px; margin: 0 auto; padding: 20px; padding-bottom: 100px; }
-.reader-active .story-header { text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 25px; }
-
-/* Chapters */
-.reader-active .chapter-block { display: none; animation: fade 0.4s; }
-.reader-active .chapter-block.active { display: block; }
-@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-.reader-active .chapter-text { font-size: var(--font-size, 18px); line-height: 1.8; white-space: pre-wrap; text-align: justify; }
-
-/* Settings Bar */
-.reader-active .settings-bar {
-    background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
-    padding: 10px 20px; display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); flex-wrap: wrap; gap: 10px;
-    font-family: 'Segoe UI', sans-serif;
+/* Theme Variables */
+.reader-theme-light {
+    --r-bg: #ffffff;
+    --r-text: #2c2c2c;
+    --r-nav-bg: rgba(255, 255, 255, 0.98);
+    --r-border: #e0e0e0;
+    --r-accent: #4b3fd8;
 }
-.reader-active .settings-bar button, .reader-active .settings-bar select {
-    background: var(--bg); color: var(--text); border: 1px solid var(--border);
-    padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;
-}
-.reader-active .color-btn { width: 30px; height: 30px; border-radius: 50%; display: inline-block; vertical-align: middle; margin-left: 8px; border: 2px solid var(--border); cursor: pointer; }
 
-/* Sticky Bottom Nav */
-.reader-active .bottom-nav {
-    position: fixed; bottom: 0; left: 0; right: 0; background: var(--panel);
-    border-top: 1px solid var(--border); padding: 15px 20px;
-    display: flex; justify-content: center; gap: 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', sans-serif;
+.reader-theme-sepia {
+    --r-bg: #f4ecd8;
+    --r-text: #4a3c2b;
+    --r-nav-bg: rgba(244, 236, 216, 0.98);
+    --r-border: #d4c5ab;
+    --r-accent: #8b5a2b;
 }
-.reader-active .bottom-nav button {
-    background: #8a2be2; color: white; border: none; padding: 12px 30px;
-    border-radius: 25px; font-weight: bold; cursor: pointer; font-size: 16px;
-}
-.reader-active .bottom-nav button:disabled { background: #555; cursor: not-allowed; opacity: 0.5; }
 
+.reader-theme-dark {
+    --r-bg: #121212;
+    --r-text: #d4d4d4;
+    --r-nav-bg: rgba(18, 18, 18, 0.98);
+    --r-border: #2a2a2a;
+    --r-accent: #7a6df4;
+}
+
+/* Base Reader Body */
+body[class^="reader-theme-"] {
+    background-color: var(--r-bg);
+    color: var(--r-text);
+    margin: 0;
+    font-family: 'Merriweather', 'Georgia', serif;
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.8;
+}
+
+/* Header */
+.reader-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 60px;
+    background: var(--r-nav-bg);
+    border-bottom: 1px solid var(--r-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.reader-header.hidden {
+    transform: translateY(-100%);
+}
+
+.reader-back-btn {
+    color: var(--r-text);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--r-border);
+    transition: background 0.2s;
+}
+.reader-back-btn:hover {
+    background: rgba(128,128,128,0.1);
+}
+
+.reader-story-title {
+    font-weight: bold;
+    font-size: 16px;
+    opacity: 0.8;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reader-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.reader-btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--r-text);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.theme-switchers {
+    display: flex;
+    gap: 8px;
+}
+
+.theme-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--r-border);
+    cursor: pointer;
+}
+.theme-btn.light { background: #ffffff; }
+.theme-btn.sepia { background: #f4ecd8; }
+.theme-btn.dark { background: #121212; }
+
+.reader-select {
+    background: transparent;
+    color: var(--r-text);
+    border: 1px solid var(--r-border);
+    padding: 5px 10px;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Main Content */
+.reader-content-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 100px 20px 80px;
+}
+
+.chapter-header-text {
+    text-align: center;
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--r-border);
+    padding-bottom: 30px;
+}
+
+.chapter-num {
+    font-family: 'Arial', sans-serif;
+    font-size: 16px;
+    color: var(--r-accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.chapter-name {
+    font-size: 2.5em;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.chapter-body-text {
+    font-size: var(--reader-font-size, 18px);
+    white-space: pre-wrap;
+    text-align: left;
+}
+
+/* Bottom Navigation */
+.chapter-bottom-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 60px;
+    padding-top: 30px;
+    border-top: 1px solid var(--r-border);
+}
+
+.reader-nav-btn {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.reader-nav-btn.solid {
+    background: var(--r-accent);
+    color: #fff;
+    border: none;
+}
+
+.reader-nav-btn.outline {
+    background: transparent;
+    color: var(--r-text);
+    border: 1px solid var(--r-border);
+}
+
+.reader-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.reader-empty {
+    text-align: center;
+    opacity: 0.6;
+    padding: 50px;
+    font-family: sans-serif;
+}
 
 /* ======================================================
    FILTER PAGE

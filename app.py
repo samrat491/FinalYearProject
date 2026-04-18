@@ -96,6 +96,10 @@ def home():
     db.close()
     return render_template("home.html", user=user, latest_stories=latest_stories)
 
+@app.route("/about")
+def about():
+    return render_template("aboutus.html", user=session.get("user"))
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if "user" in session:
@@ -150,7 +154,7 @@ def dashboard():
     
     # Oracle requires non-aggregated columns in the SELECT to be strictly grouped
     cursor.execute("""
-        SELECT stories.id, stories.title, COUNT(chapters.id) as chapter_count
+        SELECT stories.id, stories.title, COUNT(chapters.id) as chapter_count, 0 as views_count -- Added 0 for display-only views
         FROM stories 
         LEFT JOIN chapters ON stories.id = chapters.story_id 
         WHERE stories.author_name = :author 
@@ -431,7 +435,7 @@ def filter_stories():
         searched = True
 
     db.close()
-    return render_template("filter.html", stories=stories, searched=searched, current_tags=selected_tags)
+    return render_template("filter.html", user=session.get("user"), stories=stories, searched=searched, current_tags=selected_tags)
 
 if __name__ == "__main__":
     app.run(debug=True)

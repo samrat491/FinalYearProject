@@ -10,14 +10,20 @@
     <!-- Navbar -->
     <div class="navbar purple-nav">
         <div class="nav-left">
-            <a href="/home" class="nav-link" style="color: white; text-decoration: none; font-size: 20px; font-weight: bold;">Home</a>
+            <a href="/home" style="color: inherit; text-decoration: none;"><span>🏠 Home</span></a>
+            <a href="/about" style="color: inherit; text-decoration: none;"><span>👤 About us</span></a>
+            <a href="/filter" style="color: inherit; text-decoration: none;"><span>🔎 Filter</span></a>
         </div>
         <div class="nav-right">
-            {% if 'user' in session %}
-                <a href="/dashboard" class="nav-link">Dashboard</a>
+            <div class="search-wrapper" style="position: relative; display: inline-block; margin-right: 20px;">
+                <input class="search-box" id="searchInput" placeholder="Search" autocomplete="off">
+                <div id="searchResults" class="search-dropdown"></div>
+            </div>
+            <button id="themeToggle">🌙</button>
+            {% if user %}
+                <a href="/dashboard" class="nav-btn"> 📘 Dashboard </a>
             {% else %}
-                <a href="/" class="nav-link">Login</a>
-                <button id="themeToggle">🌙</button>
+                <a href="/" class="nav-btn"> 🔐 Log In </a>
             {% endif %}
         </div>
     </div>

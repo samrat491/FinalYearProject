@@ -41,7 +41,8 @@ type="password"
 placeholder="Password"
 required>
 
-<button type="button" id="paymentBtn" class="btn" style="background: #5c2d91;">
+<!-- Khalti Button -->
+<button type="button" id="paymentBtn" class="btn" style="background: #5c2d91; font-weight: bold;">
 Pay Rs. 500 (Khalti Demo) & Register
 </button>
 
@@ -90,10 +91,8 @@ toggleBtn.textContent="🌙";
 <!-- Khalti Mock Payment Integration -->
 <script>
     var config = {
-        // Khalti disables old public dummy keys. For a guaranteed working demo:
-        // 1. Log in to your Khalti merchant dashboard (https://admin.khalti.com)
-        // 2. Go to Settings -> API Keys and paste your OWN "Test Public Key" below.
-        "publicKey": "test_public_key_dc74e0fd57cb46cd93832aee0a390234",
+        // Sandbox Test Public Key from test-admin.khalti.com
+        "publicKey": "7dbf075f75534458ad99fc36d78588df",
         "productIdentity": "register_fee_01",
         "productName": "Project Registration Fee",
         "productUrl": window.location.origin,
@@ -102,11 +101,12 @@ toggleBtn.textContent="🌙";
         ],
         "eventHandler": {
             onSuccess(payload) {
+                console.log('Khalti Payment Success:', payload);
                 // Upon mock success, submit the form to the backend
                 document.getElementById("registerForm").submit();
             },
             onError(error) {
-                console.log(error);
+                console.log('Khalti Payment Error:', error);
                 alert("Payment widget encountered an error or was closed.");
             },
             onClose() {
@@ -125,23 +125,19 @@ toggleBtn.textContent="🌙";
     }
 
     btn.onclick = function () {
-        // Only trigger payment if the form fields are filled correctly
         var form = document.getElementById("registerForm");
         
         if (!checkout) {
             alert("Khalti widget failed to load. Please check your internet connection or the SDK link.");
             return;
         }
-
         if (form.checkValidity()) {
             // Amount is in paisa (500 NPR = 50000 paisa)
-            checkout.show({ amount: 50000 });
+            checkout.show({ amount: 500 });
         } else {
-            // Shows default HTML5 validation errors if fields are empty
             form.reportValidity();
         }
     }
 </script>
-
 </body>
 </html>

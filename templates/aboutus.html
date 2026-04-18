@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Final Year Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .about-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 40px;
+            background: #3a3a3a;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .about-title {
+            color: #a06bff;
+            margin-bottom: 5px;
+        }
+        .about-subtitle {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .about-content {
+            font-size: 16px;
+            line-height: 1.8;
+            text-align: left;
+            color: #eee;
+        }
+        .about-content p {
+            margin-bottom: 20px;
+        }
+        .developer-card {
+            background: #2e2e2e;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 40px;
+            border-left: 5px solid #4b3fd8;
+            text-align: left;
+        }
+        
+        /* Light mode overrides */
+        body.light .about-container {
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        body.light .about-content {
+            color: #333;
+        }
+        body.light .developer-card {
+            background: #f4f6fb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <div class="navbar purple-nav">
+        <div class="nav-left">
+            <a href="/home" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">🏠 Home</a>
+            <a href="/about" style="color: white; text-decoration: none; margin-right: 20px; font-weight: bold;">👤 About us</a>
+            <a href="/filter" style="color: white; text-decoration: none; font-weight: bold;">🔎 Filter</a>
+        </div>
+        <div class="nav-right">
+            <button id="themeToggle">🌙</button>
+            {% if user %}
+                <a href="/dashboard" class="nav-btn"> 📘 Dashboard </a>
+            {% else %}
+                <a href="/" class="nav-btn"> 🔐 Log In </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="about-container">
+        <h1 class="about-title">About This Project</h1>
+        <p class="about-subtitle">Final Year Project • 3rd Year BIT Major</p>
+        
+        <div class="about-content">
+            <p>Welcome! This platform was built with a singular vision: to empower young people to explore and develop their creative writing skills. Writing a web novel doesn't require expensive equipment, a studio, or formal training—just a brain, a laptop, and an imagination.</p>
+            
+            <p>This makes web novel writing the perfect creative outlet for introverts and dreamers who love spending their days in their rooms, constantly on their laptops, crafting entire universes from scratch.</p>
+            
+            <div class="developer-card">
+                <h3 style="margin-top: 0; color: #a06bff;">Meet the Developer</h3>
+                <p><strong>Name:</strong> Samrat KC</p>
+                <p><strong>Londonmet ID:</strong> 23048918</p>
+                <p style="margin-bottom: 0;">This project was developed entirely alone by Samrat, a huge webnovel reader since the 10th grade. Fueled by a massive love for fantasy aesthetics and captivating stories, this platform is a tribute to the webnovel community that inspired him.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const toggleBtn = document.getElementById("themeToggle");
+
+        if (localStorage.getItem("theme") === "light") {
+            document.body.classList.add("light");
+            toggleBtn.textContent = "☀️";
+        }
+
+        toggleBtn.addEventListener("click", () => {
+            document.body.classList.toggle("light");
+            if (document.body.classList.contains("light")) {
+                localStorage.setItem("theme", "light");
+                toggleBtn.textContent = "☀️";
+            } else {
+                localStorage.setItem("theme", "dark");
+                toggleBtn.textContent = "🌙";
+            }
+        });
+    </script>
+</body>
+</html>
