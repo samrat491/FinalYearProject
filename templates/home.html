@@ -37,23 +37,15 @@
             
             <div class="latest-grid">
                 {% for story in latest_stories %}
-                    <a href="/read/{{ story.id }}" class="story-item {% if loop.index > 4 %}extra-story hidden-story{% endif %}" style="text-decoration: none; color: inherit;">
-                        <div class="book big" style="
-                            padding: 0; 
-                            border: 1px solid #ccc; 
-                            border-radius: 8px; 
-                            background-color: #eee;
-                            background-image: url('{{ url_for('static', filename='uploads/' ~ story.cover_image) }}');
-                            background-size: cover;
-                            background-position: center;
-                            position: relative;
-                            overflow: hidden;
-                            height: 200px; /* Gives the box enough height to show the image */
-                        ">
-                            <div style="background: rgba(0, 0, 0, 0.7); padding: 10px; position: absolute; bottom: 0; width: 100%; box-sizing: border-box; color: white;">
-                                <h4 style="margin: 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ story.title }}</h4>
-                                <p style="font-size: 12px; color: #ccc; margin-top: 3px; margin-bottom: 0;">{{ story.genre }}</p>
-                            </div>
+                    <a href="/read/{{ story.id }}" class="story-item {% if loop.index > 4 %}extra-story hidden-story{% endif %}">
+                        <div class="story-cover">
+                            <div class="book big" style="background-image: url('{{ url_for('static', filename='uploads/' ~ story.cover_image) }}');"></div>
+                        </div>
+                        <div class="story-info">
+                            <h4>{{ story.title }}</h4>
+                            <p class="story-genre">{{ story.genre }}</p>
+                            <p class="story-tags">{{ story.tags }}</p>
+                            <p class="story-description">{{ story.description }}</p>
                         </div>
                     </a>
                 {% else %}

@@ -61,7 +61,7 @@ def init_db():
             title VARCHAR2(255) NOT NULL,
             genre VARCHAR2(100),
             tags VARCHAR2(255),
-            synopsis CLOB,
+            description CLOB,
             cover_image VARCHAR2(255),
             views NUMBER DEFAULT 0
         )
@@ -88,10 +88,10 @@ def home():
     db = get_db()
     cursor = db.cursor()
     
-    # Fetch all stories to allow client-side "dropdown" expansion
-    cursor.execute("SELECT id, title, genre, cover_image FROM stories ORDER BY id DESC")
-        
-    latest_stories = [{"id": row[0], "title": row[1], "genre": row[2], "cover_image": row[3]} for row in cursor.fetchall()]
+    # Fetch all stories including tags and description for display on home page
+    cursor.execute("SELECT id, title, genre, tags, cover_image, description FROM stories ORDER BY id DESC")
+    
+    latest_stories = [{"id": row[0], "title": row[1], "genre": row[2], "tags": row[3], "cover_image": row[4], "description": row[5]} for row in cursor.fetchall()]
     db.close()
     return render_template("home.html", user=user, latest_stories=latest_stories)
 
@@ -280,7 +280,7 @@ def edit_story(story_id):
 
     # Explicit column selection so story[6] is guaranteed to be cover_image
     cursor.execute("""
-        SELECT id, author_name, title, genre, tags, synopsis, cover_image 
+        SELECT id, author_name, title, genre, tags, description, cover_image 
         FROM stories WHERE id=:id AND author_name=:author
     """, {"id": story_id, "author": author})
     story = cursor.fetchone()
@@ -293,7 +293,7 @@ def edit_story(story_id):
         title = request.form.get("title")
         genre = request.form.get("genre")
         tags = request.form.get("tags")
-        synopsis = request.form.get("synopsis")
+        description = request.form.get("description")
         
         cover_image_name = story[6] 
         
@@ -305,9 +305,9 @@ def edit_story(story_id):
                 cover_image_name = filename
 
         cursor.execute("""
-            UPDATE stories SET title=:title, genre=:genre, tags=:tags, synopsis=:synopsis, cover_image=:cover 
+            UPDATE stories SET title=:title, genre=:genre, tags=:tags, description=:description, cover_image=:cover 
             WHERE id=:id
-        """, {"title": title, "genre": genre, "tags": tags, "synopsis": synopsis, "cover": cover_image_name, "id": story_id})
+        """, {"title": title, "genre": genre, "tags": tags, "description": description, "cover": cover_image_name, "id": story_id})
         db.commit()
         flash("Story updated successfully!")
         return redirect(f"/edit/{story_id}")
@@ -353,6 +353,32 @@ def edit_chapter(chapter_id):
         
     db.close()
     return render_template("edit_chapter.html", chapter=chapter)
+
+@app.route("/delete-chapter/<int:chapter_id>", methods=["POST"])
+def delete_chapter(chapter_id):
+    if "user" not in session: return redirect("/")
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Verify ownership and get story_id to redirect back to edit page
+    cursor.execute("""
+        SELECT chapters.story_id 
+        FROM chapters 
+        JOIN stories ON chapters.story_id = stories.id 
+        WHERE chapters.id = :id AND stories.author_name = :author
+    """, {"id": chapter_id, "author": session["user"]})
+    result = cursor.fetchone()
+    
+    if result:
+        story_id = result[0]
+        cursor.execute("DELETE FROM chapters WHERE id = :id", {"id": chapter_id})
+        db.commit()
+        db.close()
+        flash("Chapter deleted successfully!")
+        return redirect(f"/edit/{story_id}")
+    
+    db.close()
+    return redirect("/dashboard")
 
 @app.route("/add-chapter/<int:story_id>", methods=["GET", "POST"])
 def add_chapter(story_id):
@@ -416,7 +442,7 @@ def chapter():
             "title": request.form.get("title"),
             "genre": request.form.get("genre"),
             "tags": request.form.get("tags"),
-            "synopsis": request.form.get("synopsis"),
+            "description": request.form.get("description"),
             "cover_image": cover_image_name 
         }
         return render_template("chapter.html", story_data=story_data)
@@ -432,7 +458,7 @@ def publish():
     title = request.form.get("title")
     genre = request.form.get("genre")
     tags = request.form.get("tags")
-    synopsis = request.form.get("synopsis")
+    description = request.form.get("description")
     cover_image = request.form.get("cover_image") 
     
     chap_number = request.form.get("chapter_number")
@@ -444,9 +470,9 @@ def publish():
     
     # 1. Insert Story using Sequence
     cursor.execute("""
-        INSERT INTO stories (id, author_name, title, genre, tags, synopsis, cover_image, views) 
-        VALUES (stories_seq.NEXTVAL, :author, :title, :genre, :tags, :synopsis, :cover, 0)
-    """, {"author": author, "title": title, "genre": genre, "tags": tags, "synopsis": synopsis, "cover": cover_image})
+        INSERT INTO stories (id, author_name, title, genre, tags, description, cover_image, views) 
+        VALUES (stories_seq.NEXTVAL, :author, :title, :genre, :tags, :description, :cover, 0)
+    """, {"author": author, "title": title, "genre": genre, "tags": tags, "description": description, "cover": cover_image})
     
     # 2. Fetch last inserted ID using CURRVAL
     cursor.execute("SELECT stories_seq.CURRVAL FROM dual")
@@ -472,7 +498,7 @@ def read_story(story_id):
     cursor.execute("UPDATE stories SET views = NVL(views, 0) + 1 WHERE id = :id", {"id": story_id})
     db.commit()
 
-    cursor.execute("SELECT title, author_name, synopsis FROM stories WHERE id=:id", {"id": story_id})
+    cursor.execute("SELECT title, author_name, description FROM stories WHERE id=:id", {"id": story_id})
     story = cursor.fetchone()
     cursor.execute("SELECT chapter_number, chapter_title, content FROM chapters WHERE story_id=:id ORDER BY chapter_number ASC", {"id": story_id})
     chapters = cursor.fetchall()
