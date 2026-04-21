@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Detail</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="topbar">
+    <a href="/admin" class="back-link">← Back to Admin</a>
+    <span class="topbar-title">User Profile</span>
+    <span style="width: 50px;"></span>
+</div>
+
+<div class="dashboard-container">
+    <h2>{{ user_info[0] }}'s Profile</h2>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-title">Email</div>
+            <div style="font-size: 16px; margin-top: 10px; word-break: break-all;">{{ user_info[1] }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Gender</div>
+            <div class="stat-value" style="font-size: 24px;">{{ user_info[2] }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Birthdate</div>
+            <div class="stat-value" style="font-size: 24px;">{{ user_info[3] }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Total Views</div>
+            <div class="stat-value" style="font-size: 24px;">{{ total_views }}</div>
+        </div>
+    </div>
+    
+    <h3 style="margin-top: 40px;">Uploaded Stories ({{ stories|length }})</h3>
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+        {% for s in stories %}
+        <div class="story-card">
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <img src="{{ url_for('static', filename='uploads/' + s[4]) }}" alt="Cover" style="width: 60px; height: 80px; object-fit: cover; border-radius: 5px;">
+                <div>
+                    <h3 style="margin: 0 0 5px 0;">{{ s[1] }}</h3>
+                    <p style="margin: 0; font-size: 14px; color: #aaa;">Genre: {{ s[2] }}</p>
+                </div>
+            </div>
+            <div style="text-align: right;">
+                <p style="margin: 0; font-weight: bold; color: #4b3fd8;">👁 {{ s[3] }} Views</p>
+                <a href="/read/{{ s[0] }}" class="btn small-btn" style="display: inline-block; margin-top: 10px; text-decoration: none;">Read Story</a>
+            </div>
+        </div>
+        {% else %}
+        <p style="color: #aaa;">This user has not uploaded any stories yet.</p>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

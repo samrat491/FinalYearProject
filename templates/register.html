@@ -4,8 +4,6 @@
 <title>Register</title>
 <link rel="stylesheet"
     href="{{ url_for('static', filename='style.css') }}">
-<!-- Khalti Checkout SDK -->
-<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js"></script>
 </head>
 
 <body>
@@ -88,56 +86,87 @@ toggleBtn.textContent="🌙";
 }
 </script>
 
-<!-- Khalti Mock Payment Integration -->
+<!-- Custom Khalti Mock UI Modal -->
+<div id="khaltiModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; color: black; padding: 25px; width: 320px; border-radius: 8px; font-family: Arial, sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h3 style="color: #5c2d91; margin: 0; font-size: 22px;">Khalti Payment</h3>
+            <p style="font-size: 12px; color: gray; margin-top: 5px;">Test / Mock Mode</p>
+        </div>
+
+        <!-- Step 1: Phone & MPIN -->
+        <div id="khaltiStep1">
+            <label style="font-size: 13px; font-weight: bold; color: #333;">Khalti Mobile Number</label>
+            <input type="text" id="k_phone" placeholder="10-digit number" maxlength="10" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 15px; padding: 10px;">
+
+            <label style="font-size: 13px; font-weight: bold; color: #333;">Khalti MPIN</label>
+            <input type="password" id="k_mpin" placeholder="6-digit MPIN" maxlength="6" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 20px; padding: 10px;">
+
+            <button type="button" id="k_initiateBtn" style="background: #5c2d91; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">Initiate Payment</button>
+            <button type="button" class="k_closeBtn" style="background: transparent; color: #5c2d91; border: none; padding: 10px; width: 100%; margin-top: 5px; cursor: pointer; font-size: 13px;">Cancel</button>
+        </div>
+
+        <!-- Step 2: OTP -->
+        <div id="khaltiStep2" style="display: none;">
+            <p style="font-size: 13px; text-align: center; margin-bottom: 20px; color: #444;">An OTP has been sent to your mobile number.</p>
+            
+            <label style="font-size: 13px; font-weight: bold; color: #333;">Payment OTP</label>
+            <input type="text" id="k_otp" placeholder="6-digit OTP" maxlength="6" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 20px; padding: 10px;">
+
+            <button type="button" id="k_verifyBtn" style="background: #5c2d91; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">Verify & Pay</button>
+            <button type="button" class="k_closeBtn" style="background: transparent; color: #5c2d91; border: none; padding: 10px; width: 100%; margin-top: 5px; cursor: pointer; font-size: 13px;">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    var config = {
-        // Sandbox Test Public Key from test-admin.khalti.com
-        "publicKey": "7dbf075f75534458ad99fc36d78588df",
-        "productIdentity": "register_fee_01",
-        "productName": "Project Registration Fee",
-        "productUrl": window.location.origin,
-        "paymentPreference": [
-            "KHALTI"
-        ],
-        "eventHandler": {
-            onSuccess(payload) {
-                console.log('Khalti Payment Success:', payload);
-                // Upon mock success, submit the form to the backend
-                document.getElementById("registerForm").submit();
-            },
-            onError(error) {
-                console.log('Khalti Payment Error:', error);
-                alert("Payment widget encountered an error or was closed.");
-            },
-            onClose() {
-                console.log('Widget is closing');
-            }
-        }
-    };
-
-    var btn = document.getElementById("paymentBtn");
-    var checkout;
+    const modal = document.getElementById('khaltiModal');
+    const step1 = document.getElementById('khaltiStep1');
+    const step2 = document.getElementById('khaltiStep2');
+    const form = document.getElementById('registerForm');
     
-    try {
-        checkout = new KhaltiCheckout(config);
-    } catch (err) {
-        console.error("Khalti SDK could not be loaded:", err);
-    }
-
-    btn.onclick = function () {
-        var form = document.getElementById("registerForm");
-        
-        if (!checkout) {
-            alert("Khalti widget failed to load. Please check your internet connection or the SDK link.");
-            return;
-        }
+    document.getElementById("paymentBtn").onclick = function () {
         if (form.checkValidity()) {
-            // Amount is in paisa (500 NPR = 50000 paisa)
-            checkout.show({ amount: 500 });
+            modal.style.display = 'flex';
+            step1.style.display = 'block';
+            step2.style.display = 'none';
+            
+            // Clear input fields when modal opens
+            document.getElementById('k_phone').value = '';
+            document.getElementById('k_mpin').value = '';
+            document.getElementById('k_otp').value = '';
         } else {
             form.reportValidity();
         }
-    }
+    };
+
+    document.querySelectorAll('.k_closeBtn').forEach(btn => {
+        btn.onclick = () => modal.style.display = 'none';
+    });
+
+    document.getElementById('k_initiateBtn').onclick = () => {
+        const phone = document.getElementById('k_phone').value;
+        const mpin = document.getElementById('k_mpin').value;
+        
+        // Loose validation: just checks lengths and ensures they are numeric
+        if (phone.length === 10 && !isNaN(phone) && mpin.length === 6 && !isNaN(mpin)) {
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+        } else {
+            alert('Please enter any 10-digit phone number and 6-digit MPIN.');
+        }
+    };
+
+    document.getElementById('k_verifyBtn').onclick = () => {
+        const otp = document.getElementById('k_otp').value;
+        
+        if (otp.length === 6 && !isNaN(otp)) {
+            modal.style.display = 'none';
+            form.submit(); // Automatically submit the registration form to backend
+        } else {
+            alert('Please enter any 6-digit OTP.');
+        }
+    };
 </script>
 </body>
 </html>

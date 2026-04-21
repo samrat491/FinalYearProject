@@ -62,7 +62,8 @@ def init_db():
             genre VARCHAR2(100),
             tags VARCHAR2(255),
             synopsis CLOB,
-            cover_image VARCHAR2(255)
+            cover_image VARCHAR2(255),
+            views NUMBER DEFAULT 0
         )
     """)
     # 3. Chapters Table
@@ -86,12 +87,10 @@ def home():
     user = session.get("user")
     db = get_db()
     cursor = db.cursor()
-    # Oracle 11g limitation: use ROWNUM instead of LIMIT
-    cursor.execute("""
-        SELECT * FROM (
-            SELECT id, title, genre, cover_image FROM stories ORDER BY id DESC
-        ) WHERE ROWNUM <= 8
-    """)
+    
+    # Fetch all stories to allow client-side "dropdown" expansion
+    cursor.execute("SELECT id, title, genre, cover_image FROM stories ORDER BY id DESC")
+        
     latest_stories = [{"id": row[0], "title": row[1], "genre": row[2], "cover_image": row[3]} for row in cursor.fetchall()]
     db.close()
     return render_template("home.html", user=user, latest_stories=latest_stories)
@@ -103,18 +102,26 @@ def about():
 @app.route("/", methods=["GET", "POST"])
 def login():
     if "user" in session:
-        return redirect("/dashboard")
+        if session.get("is_admin"):
+            return redirect("/admin")
+        else:
+            return redirect("/dashboard")
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
         db = get_db()
         cursor = db.cursor()
-        cursor.execute("SELECT name, password FROM users WHERE email=:email", {"email": email})
+        cursor.execute("SELECT name, password, email FROM users WHERE email=:email", {"email": email})
         user = cursor.fetchone()
         db.close()
         if user and check_password_hash(user[1], password):
             session["user"] = user[0]
-            return redirect("/dashboard")
+            if user[2] == 'sangamp607@gmail.com':
+                session["is_admin"] = True
+                return redirect("/admin")
+            else:
+                session["is_admin"] = False
+                return redirect("/dashboard")
         else:
             flash("Invalid email or password")
     return render_template("login.html")
@@ -154,19 +161,109 @@ def dashboard():
     
     # Oracle requires non-aggregated columns in the SELECT to be strictly grouped
     cursor.execute("""
-        SELECT stories.id, stories.title, COUNT(chapters.id) as chapter_count, 0 as views_count -- Added 0 for display-only views
+        SELECT stories.id, stories.title, COUNT(chapters.id) as chapter_count, NVL(stories.views, 0) as views_count
         FROM stories 
         LEFT JOIN chapters ON stories.id = chapters.story_id 
         WHERE stories.author_name = :author 
-        GROUP BY stories.id, stories.title
+        GROUP BY stories.id, stories.title, stories.views
         ORDER BY stories.id DESC
     """, {"author": author})
     
     user_stories = cursor.fetchall()
     total_stories_count = len(user_stories)
+    total_views = sum(story[3] for story in user_stories)
     db.close()
     
-    return render_template("dashboard.html", user=author, stories=user_stories, total_stories=total_stories_count)
+    return render_template("dashboard.html", user=author, stories=user_stories, total_stories=total_stories_count, total_views=total_views)
+
+@app.route("/admin")
+def admin_dashboard():
+    if "user" not in session or not session.get("is_admin"):
+        return redirect("/")
+    
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch all users along with their total uploaded stories and total aggregated views
+    cursor.execute("""
+        SELECT u.id, u.name, u.email, u.gender, u.birthdate,
+               COUNT(DISTINCT s.id) as story_count,
+               NVL(SUM(s.views), 0) as total_views
+        FROM users u
+        LEFT JOIN stories s ON u.name = s.author_name
+        GROUP BY u.id, u.name, u.email, u.gender, u.birthdate
+        ORDER BY u.id DESC
+    """)
+    
+    users_data = cursor.fetchall()
+    db.close()
+    
+    return render_template("admin.html", users=users_data)
+
+@app.route("/admin/delete_user/<int:user_id>", methods=["POST"])
+def delete_user(user_id):
+    if "user" not in session or not session.get("is_admin"):
+        return redirect("/")
+    
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch the user to ensure admin is not deleting themselves
+    cursor.execute("SELECT email, name FROM users WHERE id=:id", {"id": user_id})
+    target_user = cursor.fetchone()
+    
+    # Verify it's a valid user and NOT the master admin
+    if target_user and target_user[0] != 'sangamp607@gmail.com':
+        target_author_name = target_user[1]
+        
+        # 1. Delete all chapters associated with the user's stories
+        cursor.execute("""
+            DELETE FROM chapters WHERE story_id IN (
+                SELECT id FROM stories WHERE author_name=:author
+            )
+        """, {"author": target_author_name})
+        
+        # 2. Delete the user's stories
+        cursor.execute("DELETE FROM stories WHERE author_name=:author", {"author": target_author_name})
+        
+        # 3. Delete the user account
+        cursor.execute("DELETE FROM users WHERE id=:id", {"id": user_id})
+        db.commit()
+        
+    db.close()
+    return redirect("/admin")
+
+@app.route("/admin/user/<int:user_id>")
+def admin_user_detail(user_id):
+    if "user" not in session or not session.get("is_admin"):
+        return redirect("/")
+        
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Fetch basic user details
+    cursor.execute("SELECT name, email, gender, birthdate FROM users WHERE id=:id", {"id": user_id})
+    user_info = cursor.fetchone()
+    
+    if not user_info:
+        db.close()
+        return redirect("/admin")
+        
+    author_name = user_info[0]
+    
+    # Fetch specific stories published by this user
+    cursor.execute("""
+        SELECT id, title, genre, NVL(views, 0), cover_image 
+        FROM stories 
+        WHERE author_name=:author
+        ORDER BY id DESC
+    """, {"author": author_name})
+    
+    user_stories = cursor.fetchall()
+    total_views = sum(story[3] for story in user_stories)
+    db.close()
+    
+    return render_template("admin_user_detail.html", user_info=user_info, stories=user_stories, total_views=total_views)
 
 @app.route("/create-story")
 def create_story():
@@ -347,8 +444,8 @@ def publish():
     
     # 1. Insert Story using Sequence
     cursor.execute("""
-        INSERT INTO stories (id, author_name, title, genre, tags, synopsis, cover_image) 
-        VALUES (stories_seq.NEXTVAL, :author, :title, :genre, :tags, :synopsis, :cover)
+        INSERT INTO stories (id, author_name, title, genre, tags, synopsis, cover_image, views) 
+        VALUES (stories_seq.NEXTVAL, :author, :title, :genre, :tags, :synopsis, :cover, 0)
     """, {"author": author, "title": title, "genre": genre, "tags": tags, "synopsis": synopsis, "cover": cover_image})
     
     # 2. Fetch last inserted ID using CURRVAL
@@ -370,6 +467,11 @@ def publish():
 def read_story(story_id):
     db = get_db()
     cursor = db.cursor()
+
+    # Increment views for the story
+    cursor.execute("UPDATE stories SET views = NVL(views, 0) + 1 WHERE id = :id", {"id": story_id})
+    db.commit()
+
     cursor.execute("SELECT title, author_name, synopsis FROM stories WHERE id=:id", {"id": story_id})
     story = cursor.fetchone()
     cursor.execute("SELECT chapter_number, chapter_title, content FROM chapters WHERE story_id=:id ORDER BY chapter_number ASC", {"id": story_id})

@@ -7,7 +7,7 @@
 <body>
     <div class="navbar purple-nav">
         <div class="nav-left">
-            <span>🏠 Home</span>
+            <a href="/home" style="color: inherit; text-decoration: none;"><span>🏠 Home</span></a>
             <a href="/about" style="color: inherit; text-decoration: none;"><span>👤 About us</span></a>
             <a href="/filter" style="color: inherit; text-decoration: none;"><span>🔎 Filter</span></a>
         
@@ -30,12 +30,14 @@
         <div class="main-content">
             <div class="latest-header">
                 <h3>Latest Updates</h3>
-                <button class="view-more"> View More </button>
+                {% if latest_stories|length > 4 %}
+                    <button id="viewMoreBtn" class="view-more-link" style="cursor: pointer;"> View More </button>
+                {% endif %}
             </div>
             
             <div class="latest-grid">
                 {% for story in latest_stories %}
-                    <a href="/read/{{ story.id }}" style="text-decoration: none; color: inherit;">
+                    <a href="/read/{{ story.id }}" class="story-item {% if loop.index > 4 %}extra-story hidden-story{% endif %}" style="text-decoration: none; color: inherit;">
                         <div class="book big" style="
                             padding: 0; 
                             border: 1px solid #ccc; 
@@ -55,35 +57,34 @@
                         </div>
                     </a>
                 {% else %}
-                    <p style="grid-column: span 4; text-align: center;">No stories published yet. Be the first to publish!</p>
+                    <p style="grid-column: 1 / -1; text-align: center;">No stories published yet. Be the first to publish!</p>
                 {% endfor %}
             </div>
         </div>
         
         <div class="sidebar">
-            <h3>Popular Today</h3>
+            <h3>Trending This Week</h3>
             <div class="tabs">
-                <span class="active">Today</span>
             </div>
             <div class="popular-item">
                 <img src="{{ url_for('static', filename='images/shadowslave.png') }}" alt="Shadow Slave" width="100">
                 <div>
                     <h4>Shadow Slave</h4>
-                    <p>Action • Fantasy</p> ⭐⭐⭐⭐⭐
+                    <p>Action • Fantasy</p> 
                 </div>
             </div>
             <div class="popular-item">
                 <img src="{{ url_for('static', filename='images/ghostexorciser.png') }}" alt="Ghost Exorciser" width="100">
                 <div>
                     <h4>Ghost Exorciser</h4>
-                    <p>Comedy • Romance</p> ⭐⭐⭐⭐
+                    <p>Comedy • Romance</p> 
                 </div>
             </div>
             <div class="popular-item">
                 <img src="{{ url_for('static', filename='images/sinfullifeofemperor.png') }}" alt="Sinful Emperor" width="100">
                 <div>
                     <h4>Sinful Emperor</h4>
-                    <p>Adventure • Fantasy</p> ⭐⭐⭐
+                    <p>Adventure • Fantasy</p> 
                 </div>
             </div>
         </div>
@@ -142,6 +143,23 @@
                 searchResults.style.display = "none";
             }
         });
+
+        // View More Dropdown Logic
+        const viewMoreBtn = document.getElementById("viewMoreBtn");
+        if (viewMoreBtn) {
+            viewMoreBtn.addEventListener("click", function() {
+                const hiddenStories = document.querySelectorAll(".story-item.extra-story");
+                const isExpanded = this.textContent.trim() === "View Less";
+                
+                if (isExpanded) {
+                    hiddenStories.forEach(story => story.classList.add("hidden-story"));
+                    this.textContent = "View More";
+                } else {
+                    hiddenStories.forEach(story => story.classList.remove("hidden-story"));
+                    this.textContent = "View Less";
+                }
+            });
+        }
     </script>
 </body>
 </html>

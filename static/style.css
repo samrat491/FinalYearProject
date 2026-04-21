@@ -357,21 +357,33 @@ margin-bottom:40px;
 }
 
 .latest-grid{
-display:grid;
-grid-template-columns: repeat(2, 1fr); /* 2 books per row */
-column-gap:350px;  /* gap between books left-right */
-row-gap:40px;     /* gap between first and second row */
-margin-top:20px;
-max-width:380px;  /* keeps grid compact */
+    display:grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 books per row */
+    column-gap:300px;  /* Increased gap for more distance between stories on the same row */
+    row-gap:40px;     /* gap between first and second row */
+    margin-top:20px;
+    max-width:380px;  /* keeps grid compact */
 }
 
+/* Used to hide extra stories initially for the View More dropdown */
+.hidden-story {
+    display: none !important;
+}
 
-.view-more{
+/* Style for the "View More" link */
+.view-more-link {
     background:#7a52ff;
     border:none;
     padding:8px 15px;
     border-radius:20px;
     color:white;
+    text-decoration: none; /* Make it look like a button */
+    display: inline-block; /* Allow padding and margin */
+    transition: background 0.2s ease;
+}
+
+.view-more-link:hover {
+    background: #8e6aff;
 }
 
 
