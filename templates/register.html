@@ -99,21 +99,10 @@ toggleBtn.textContent="🌙";
             <label style="font-size: 13px; font-weight: bold; color: #333;">Khalti Mobile Number</label>
             <input type="text" id="k_phone" placeholder="10-digit number" maxlength="10" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 15px; padding: 10px;">
 
-            <label style="font-size: 13px; font-weight: bold; color: #333;">Khalti MPIN</label>
-            <input type="password" id="k_mpin" placeholder="6-digit MPIN" maxlength="6" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 20px; padding: 10px;">
+            <label style="font-size: 13px; font-weight: bold; color: #333;">Khalti PIN</label>
+            <input type="password" id="k_mpin" placeholder="4-digit PIN" maxlength="4" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 20px; padding: 10px;">
 
-            <button type="button" id="k_initiateBtn" style="background: #5c2d91; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">Initiate Payment</button>
-            <button type="button" class="k_closeBtn" style="background: transparent; color: #5c2d91; border: none; padding: 10px; width: 100%; margin-top: 5px; cursor: pointer; font-size: 13px;">Cancel</button>
-        </div>
-
-        <!-- Step 2: OTP -->
-        <div id="khaltiStep2" style="display: none;">
-            <p style="font-size: 13px; text-align: center; margin-bottom: 20px; color: #444;">An OTP has been sent to your mobile number.</p>
-            
-            <label style="font-size: 13px; font-weight: bold; color: #333;">Payment OTP</label>
-            <input type="text" id="k_otp" placeholder="6-digit OTP" maxlength="6" style="background: #f9f9f9; border: 1px solid #ccc; color: black; margin-top: 5px; margin-bottom: 20px; padding: 10px;">
-
-            <button type="button" id="k_verifyBtn" style="background: #5c2d91; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">Verify & Pay</button>
+            <button type="button" id="k_initiateBtn" style="background: #5c2d91; color: white; border: none; padding: 12px; width: 100%; border-radius: 4px; cursor: pointer; font-weight: bold;">Verify & Pay</button>
             <button type="button" class="k_closeBtn" style="background: transparent; color: #5c2d91; border: none; padding: 10px; width: 100%; margin-top: 5px; cursor: pointer; font-size: 13px;">Cancel</button>
         </div>
     </div>
@@ -122,19 +111,16 @@ toggleBtn.textContent="🌙";
 <script>
     const modal = document.getElementById('khaltiModal');
     const step1 = document.getElementById('khaltiStep1');
-    const step2 = document.getElementById('khaltiStep2');
     const form = document.getElementById('registerForm');
     
     document.getElementById("paymentBtn").onclick = function () {
         if (form.checkValidity()) {
             modal.style.display = 'flex';
             step1.style.display = 'block';
-            step2.style.display = 'none';
             
             // Clear input fields when modal opens
             document.getElementById('k_phone').value = '';
             document.getElementById('k_mpin').value = '';
-            document.getElementById('k_otp').value = '';
         } else {
             form.reportValidity();
         }
@@ -149,22 +135,11 @@ toggleBtn.textContent="🌙";
         const mpin = document.getElementById('k_mpin').value;
         
         // Loose validation: just checks lengths and ensures they are numeric
-        if (phone.length === 10 && !isNaN(phone) && mpin.length === 6 && !isNaN(mpin)) {
-            step1.style.display = 'none';
-            step2.style.display = 'block';
-        } else {
-            alert('Please enter any 10-digit phone number and 6-digit MPIN.');
-        }
-    };
-
-    document.getElementById('k_verifyBtn').onclick = () => {
-        const otp = document.getElementById('k_otp').value;
-        
-        if (otp.length === 6 && !isNaN(otp)) {
+        if (phone.length === 10 && !isNaN(phone) && mpin.length === 4 && !isNaN(mpin)) {
             modal.style.display = 'none';
             form.submit(); // Automatically submit the registration form to backend
         } else {
-            alert('Please enter any 6-digit OTP.');
+            alert('Please enter a 10-digit phone number and 4-digit PIN.');
         }
     };
 </script>
